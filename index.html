@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+        <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.min.css">
+
+        <title>키워드 검색</title>
+        <style>
+            .btn {
+                margin: 10px 0 10px 0
+            }
+        </style>
+    </head>
+    <body>
+        <br>
+        <div class="container" id="app">
+            <div class="row">
+                <div class="col">
+                    <input type="file" id="getfile" accept="text/*">
+                </div>
+            </div>
+            <br><hr>
+            <div class="row">
+                <h5 class="col-12">키워드</h5>
+                <div class="col-sm-4 col-md-3 col-lg-2" v-for="keyword in keywords">
+                    <div class="btn-group-toggle" data-toggle="buttons" @click="select(keyword)">
+                        <label class="btn btn-outline-success btn-block">
+                            <input type="checkbox" checked autocomplete="off"> {{keyword}}
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <br><hr>
+            <div class="row">
+                <h5 class="col-12">작품들 <span class="text-success">{{selected_keywords}}</span></h5>
+                <div class="col-sm-6 col-lg-4" v-for="sample in samples">
+                    <div class="card text-dark border-success mb-3">
+                        <div class="card-body text-dark">
+                            <h5 class="card-title text-center">{{sample}}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- jQuery first, then Popper.js, then Bootstrap JS. -->
+        <script src="node_modules/jquery/dist/jquery.slim.min.js"></script>
+        <script src="node_modules/popper.js/dist/umd/popper.min.js"></script>
+        <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script src="node_modules/vue/dist/vue.js"></script>
+
+        <script type="text/javascript">
+            let app = new Vue({
+                el: '#app',
+                data: {
+                    keywords: new Set(),
+                    selected_keywords: [],
+                    keyword_map: {},
+                    samples: [],
+                },
+                mounted: function() {
+                    let my = this;
+                    file = document.querySelector('#getfile')
+                    file.onchange = function () {
+                        var fileList = file.files ;
+
+                        // 읽기
+                        var reader = new FileReader();
+                        reader.readAsText(fileList [0]);
+
+                        //로드 한 후
+                        reader.onload = function  () {
+                            my.samples = [];
+                            my.keywords = new Set();
+                            my.selected_keywords = [];
+                            my.keyword_map = {};
+
+                            var txt = reader.result;
+
+                            var array = txt.split("\n");
+                            for(i in array) {
+                                if(array[i].length>0) {
+                                    names = array[i].split("|");
+
+                                    book = names[0];
+                                    words = names[1].split(" ");
+                                    words.forEach(word => {
+                                        my.keywords.add(word);
+                                    });
+                                    my.keyword_map[book] = words;
+                                }
+                            }
+                        };
+                    };
+                },
+                methods: {
+                    select: function (keyword) {
+                        let my = this;
+                        selected_keywords = new Set(my.selected_keywords)
+                        if (selected_keywords.has(keyword)) selected_keywords.delete(keyword);
+                        else selected_keywords.add(keyword);
+
+                        my.selected_keywords = Array.from(selected_keywords);
+
+                        my.samples = [];
+
+                        if (my.selected_keywords.length > 0) {
+                            Object.entries(my.keyword_map).forEach(entry => {
+                                if (my.selected_keywords.every(word => entry[1].includes(word))){
+                                    my.samples.push(entry[0]);
+                                }
+                            })
+                        }
+                    }
+                }
+            })
+        </script>
+    </body>
+</html>
