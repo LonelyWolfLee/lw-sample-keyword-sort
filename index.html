@@ -71,7 +71,7 @@
 
                         // 읽기
                         var reader = new FileReader();
-                        reader.readAsText(fileList [0]);
+                        reader.readAsText(fileList[0]);
 
                         //로드 한 후
                         reader.onload = function  () {
@@ -81,7 +81,13 @@
                             my.keyword_map = {};
 
                             var txt = reader.result;
+                            txt = my.eucKrToUtf8(txt);
 
+                            txt = txt.replace("\r", "\n");
+                            txt = txt.replace("\n\n", "\n");
+                            txt = txt.replace(" \n", "\n");
+                            txt = encodeURIComponent(txt);
+                            console.log(txt);
                             var array = txt.split("\n");
                             for(i in array) {
                                 if(array[i].length>0) {
@@ -116,8 +122,13 @@
                                 }
                             })
                         }
+                    },
+                    eucKrToUtf8: function(str) {
+                        var iconv = new Iconv('euc-kr', 'utf-8');
+                        var buf = new Buffer(str, 'binary');
+                        return iconv.convert(buf).toString();
+    }
                     }
-                }
             })
         </script>
     </body>
