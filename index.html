@@ -81,24 +81,27 @@
                             my.keyword_map = {};
 
                             var txt = reader.result;
-                            txt = my.eucKrToUtf8(txt);
 
                             txt = txt.replace("\r", "\n");
                             txt = txt.replace("\n\n", "\n");
                             txt = txt.replace(" \n", "\n");
-                            txt = encodeURIComponent(txt);
-                            console.log(txt);
+
                             var array = txt.split("\n");
                             for(i in array) {
-                                if(array[i].length>0) {
-                                    names = array[i].split("|");
+                                var line = array[i].trim();
+                                if(line.length>0) {
+                                    try {
+                                        names = line.split("|");
 
-                                    book = names[0];
-                                    words = names[1].split(" ");
-                                    words.forEach(word => {
-                                        my.keywords.add(word);
-                                    });
-                                    my.keyword_map[book] = words;
+                                        book = names[0];
+                                        words = names[1].split(" ");
+                                        words.forEach(word => {
+                                            my.keywords.add(word);
+                                        });
+                                        my.keyword_map[book] = words;
+                                    } catch (e) {
+                                        alert(`잘못된 형식이 있습니다. \n\n ${line}`);
+                                    }
                                 }
                             }
                         };
@@ -123,12 +126,7 @@
                             })
                         }
                     },
-                    eucKrToUtf8: function(str) {
-                        var iconv = new Iconv('euc-kr', 'utf-8');
-                        var buf = new Buffer(str, 'binary');
-                        return iconv.convert(buf).toString();
-    }
-                    }
+                }
             })
         </script>
     </body>
